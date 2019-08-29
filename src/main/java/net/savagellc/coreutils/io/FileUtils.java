@@ -2,6 +2,11 @@ package net.savagellc.coreutils.io;
 
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 public class FileUtils {
 
@@ -112,6 +117,43 @@ public class FileUtils {
      */
     public static boolean pipeToFile(File f, InputStream inStream, boolean append) throws IOException {
         return pipeToFile(f, inStream, append, 1024);
+    }
+
+    /**
+     * Loads a jar into the process
+     * @param f the file to load
+     * @param parentClassLoader the parent classloader to inject tp
+     * @return The new classloader created for the inject
+     * @throws MalformedURLException
+     */
+    public static ClassLoader loadJar(File f, ClassLoader parentClassLoader) throws MalformedURLException {
+        ClassLoader childLoader = URLClassLoader.newInstance(new URL[]{ f.toURI().toURL() }, parentClassLoader);
+        return childLoader;
+    }
+    /**
+     * Loads a jar into the process with the SystemClassLoader as parent loader
+     * @param f the file to load
+     * @return The new classloader created for the inject
+     * @throws MalformedURLException
+     */
+    public static ClassLoader loadJar(File f) throws MalformedURLException {
+       return loadJar(f, ClassLoader.getSystemClassLoader());
+    }
+
+    /**
+     * Loads a jar into the process by accessing the System class loader through reflection.
+     *
+     * @param f the file to load
+     * @return The new classloader created for the inject
+     * @throws MalformedURLException
+     */
+    public static ClassLoader loadJarUnsafe(File f) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        Class<?> clazz = cl.getClass();
+        Method method = clazz.getSuperclass().getDeclaredMethod("addURL", new Class[]{URL.class});
+        method.setAccessible(true);
+        method.invoke(cl, f.toURI().toURL());
+        return cl;
     }
 
 }
