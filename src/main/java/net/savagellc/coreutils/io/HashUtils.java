@@ -1,7 +1,9 @@
 package net.savagellc.coreutils.io;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -33,7 +35,7 @@ public class HashUtils {
      * @throws NoSuchAlgorithmException
      */
     public static String sha256(String data) throws NoSuchAlgorithmException {
-        return sha256(data.getBytes());
+        return sha256(data.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -56,7 +58,7 @@ public class HashUtils {
      * @throws NoSuchAlgorithmException
      */
     public static String sha1(String data) throws NoSuchAlgorithmException {
-        return sha1(data.getBytes());
+        return sha1(data.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -66,7 +68,7 @@ public class HashUtils {
      * @throws NoSuchAlgorithmException
      */
     public static String sha512(String data) throws NoSuchAlgorithmException {
-        return sha512(data.getBytes());
+        return sha512(data.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -96,8 +98,11 @@ public class HashUtils {
     public static String md5(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] result = md.digest(data);
-        return DatatypeConverter
-                .printHexBinary(result);
+        StringBuffer sb = new StringBuffer();
+        for (byte b : result) {
+            sb.append(Integer.toHexString((b & 0xFF) | 0x100), 1, 3);
+        }
+        return sb.toString();
     }
     /**
      * Digests the MD5 hash of a given String
@@ -106,6 +111,6 @@ public class HashUtils {
      * @throws NoSuchAlgorithmException
      */
     public static String md5(String data) throws NoSuchAlgorithmException {
-        return md5(data.getBytes());
+        return md5(data.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -21,4 +21,9 @@ public class HashTests {
         System.out.println(HashUtils.md5("1234"));
 
     }
+
+    @Test
+    public void md5() throws NoSuchAlgorithmException {
+        System.out.println(HashUtils.md5("Test"));
+    }
 }
